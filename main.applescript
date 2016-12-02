@@ -1,21 +1,3 @@
-on is_running(appName)
-	tell application "System Events" to (name of processes) contains appName
-end is_running
-
-on findAndReplace(tofind, toreplace, TheString)
-	set OldAppleTextitemDelimiters to text item delimiters
-	set text item delimiters to tofind
-	set textItems to text items of TheString
-	set text item delimiters to toreplace
-	if (class of TheString is string) then
-		set FinalStringResult to textItems as string
-	else
-		set FinalStringResult to textItems as Unicode text
-	end if
-	set text item delimiters to OldAppleTextitemDelimiters
-	return FinalStringResult
-end findAndReplace
-
 on AllCheck(YoutubedlPath, FfmpegPath, myURL)
 	set FinalScript to quoted form of YoutubedlPath & " --no-playlist --newline -R 2 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio' --merge-output-format mp4 --ffmpeg-location " & FfmpegPath & " -o '~/Downloads/VideoDL/%(title)s.%(ext)s' " & myURL & " > /tmp/progress.txt 2>&1 &"
 	--set FinalScript to quoted form of YoutubedlPath & " -F -o '~/Downloads/YoutubeDL/%(title)s.%(ext)s' " & myURL & " | grep fps | grep mp4 | cut -d ' ' -f 19 | sed -e 's/$/ pixels/'"
@@ -115,84 +97,49 @@ else
 end if
 
 
-repeat while URLValide is false
+##repeat while URLValide is false
+
+if NaviguateurOuvertTrue is "Safari" then
+	set OpenBrowser to "Safari"
+	tell application id "com.apple.Safari"
+		set myURL to URL of front document
+	end tell
 	
-	if NaviguateurOuvertTrue is "Safari" then
-		set OpenBrowser to "Safari"
-		tell application id "com.apple.Safari"
-			set myURL to URL of front document
-		end tell
-		
-	else if NaviguateurOuvertTrue is "Google Chrome" then
-		tell application "Google Chrome"
-			set OpenBrowser to "Google Chrome"
-			set myURL to URL of active tab of front window
-		end tell
-		
-	else if NaviguateurOuvertTrue is "Firefox" then
-		set OpenBrowser to "Firefox"
-		tell application id (id of application appName)
-			activate
-		end tell
-		tell application "System Events"
-			keystroke "l" using command down
-			keystroke "c" using command down
-		end tell
-		delay 0.2
-		set myURL to the clipboard
-		
-	else if NaviguateurOuvertTrue is "Opera" then
-		set OpenBrowser to "Opera"
-		tell application "Opera"
-			activate
-		end tell
-		tell application "System Events"
-			keystroke "l" using command down
-			keystroke "c" using command down
-		end tell
-		delay 0.2
-		set myURL to the clipboard
-		else 
-		display dialog "WOW"
-	end if
+else if NaviguateurOuvertTrue is "Google Chrome" then
+	tell application "Google Chrome"
+		set OpenBrowser to "Google Chrome"
+		set myURL to URL of active tab of front window
+	end tell
 	
-	if AucunNaviguateur then
-		tell application "System Events" to display dialog return & "Merci d'ouvir votre naviguateur !" buttons {"Quitter", "Continuer"} default button "Continuer" with icon file cancelledPath
-		if the button returned of the result is "Quitter" then
-			return
-		else
-			tell application id "com.apple.Safari"
-				activate
-				try
-					set URLFromFrontDocument to URL of front document
-					URLFromFrontDocument
-				on error
-					set URLFromFrontDocument to "test.com"
-				end try
-				set CountWindowSaf to count window
-				if CountWindowSaf = 0 then
-					make new document at end of documents with properties {URL:"http://www.youtube.com"}
-				end if
-				if URLFromFrontDocument does not contain URLYoutubeInitial then
-					set the URL of the front document to "http://www.youtube.com"
-				end if
-			end tell
-		end if
-	end if
-end repeat
-if UrlTitle contains "&#39;" then
-	set UrlTitle to findAndReplace("&#39;", "'", UrlTitle)
+else if NaviguateurOuvertTrue is "Firefox" then
+	set OpenBrowser to "Firefox"
+	tell application id (id of application appName)
+		activate
+	end tell
+	tell application "System Events"
+		keystroke "l" using command down
+		keystroke "c" using command down
+	end tell
+	delay 0.2
+	set myURL to the clipboard
+	
+else if NaviguateurOuvertTrue is "Opera" then
+	set OpenBrowser to "Opera"
+	tell application "Opera"
+		activate
+	end tell
+	tell application "System Events"
+		keystroke "l" using command down
+		keystroke "c" using command down
+	end tell
+	delay 0.2
+	set myURL to the clipboard
 end if
-if IsDefined then
-	tell application "System Events" to display dialog "Voulez-vous vraiment t四残harger : " & return & UrlTitle buttons {"Quitter", "Continuer"} default button "Continuer" with icon file YoutubePath
-	if the button returned of the result is "Quitter" then
-		return
-	end if
-else
-	set lastUrlTitle to text 1 thru -11 of UrlTitle
-	tell application "System Events" to display dialog "Voulez-vous vraiment t四残harger : " & return & lastUrlTitle buttons {"Quitter", "Continuer"} default button "Continuer" with icon file YoutubePath
-	if the button returned of the result is "Quitter" then
-		return
-	end if
+##end repeat
+
+tell application "System Events" to display dialog "Voulez-vous vraiment t四残harger : " & return & UrlTitle buttons {"Quitter", "Continuer"} default button "Continuer" with icon file YoutubePath
+if the button returned of the result is "Quitter" then
+	return
 end if
+
 AllCheck(YoutubedlPath, FfmpegPath, myURL)
